@@ -804,10 +804,14 @@ def _get_oasis(url, usecols=None, verbose=False, sleep=4):
 
     z = ZipFile(io.BytesIO(r.content))
 
-    df = pd.read_csv(
-        z.open(z.namelist()[0]),
-        usecols=usecols,
-    )
+    try:
+        df = pd.read_csv(
+            z.open(z.namelist()[0]),
+            usecols=usecols,
+        )
+    except ValueError:
+        print(f"There was an issue converting the returned zipfile from CAISO OASIS. It could be that\
+        there was no data for the date range selected. Try again with a different date range.")
 
     if "INTERVALSTARTTIME_GMT" in df.columns:
         df["INTERVALSTARTTIME_GMT"] = pd.to_datetime(
